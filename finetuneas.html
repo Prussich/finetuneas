@@ -350,10 +350,10 @@
     function buttonLoadAudio(evt) {
         var audioFile = evt.target.files[0];
         if (audioFile) {
-        
+
             readBinaryStringFromBlob(audioFile, catchXingHeader);
             console.log(audioFile);
-            function catchXingHeader(binary) {		
+            function catchXingHeader(binary) {
                 console.log(binary.slice(0,1000));
                 xingMatch = binary.match(/(Info|Xing)\x00\x00\x00/);
                 if(xingMatch){
@@ -397,7 +397,7 @@
             } catch (error) {
 		try {
 			fragments = parseCSV(e.target.result);
-		} catch (e2) {				
+		} catch (e2) {
 			alert("Unable to parse the given syncmap file.");
 			return;
 		}
@@ -434,7 +434,7 @@
 	}
 	return fragments;
     }
-	
+
     function prepareControls() {
         // add event listeners
         for (var i = 0; i < fragments.length; i++) {
@@ -639,7 +639,7 @@
             if (showID) {
                 row += '<div class="col-2" id="' + getStringID(i, "id") + '">' + id + '<\/div>';
             }
-            row += '<div class="col" style="display: table-cell; vertical-align: middle;" id="' + getStringID(i, "cell") + '"><a class="text" id="' + getStringID(i, "text") + '">' + text + '<\/a><\/div>';
+            row += '<div class="col" style="display: table-cell; vertical-align: middle;" id="' + getStringID(i, "cell") + '"><a class="text" id="' + getStringID(i, "text") + '"><textarea name="' + getStringID(i, "text") + '" id="' + getStringID(i, "text") + 'textarea" rows="3" style="width: 600px; margin-top: 0px; margin-bottom: 0px; height: 62px;">'+text+'</textarea><\/a><\/div>';
             row += '<div class="edit col-4">';
 
             row += '<div style="display:block;margin-bottom:10px;">';
@@ -685,6 +685,7 @@
     function fragmentClick(evt) {
         highlight(CLEAR);
         currentIndex = getID(evt.target.id);
+        fragments[currentIndex].lines=[document.getElementById("f"+currentIndex+"textarea").value];
         playOverlay(0);
     }
 
@@ -717,7 +718,7 @@
                     fragments[i - 1].end = fragments[i].begin;
                     updateTime(i-1, "end");
                 }
-            }           
+            }
             highlight(CLEAR);
             currentIndex = i;
             playOverlay(0);
@@ -1029,7 +1030,7 @@
 			stopOverlay();
 		}
     }
-    
+
     function stopOverlay() {
         audioElement.pause();
     }
