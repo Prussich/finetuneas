@@ -66,7 +66,7 @@
         <div class="col-3">
             <div class="settings">
                 <label for="timeStep" style="display:block">Time increment (s):</label>
-                <input id="timeStep" type="number" min="0.010" step="0.010" value="0.100" style="display:block"/>
+                <input id="timeStep" type="number" min="0.010" step="0.010" value="0.025" style="display:block"/>
                 <label for="couple" style="display:block">Couple ends/starts:</label>
                 <button class="btn btn-primary btn-sm" id="couple" style="display:block">OFF</button>
                 <label for="buttonShowID" style="display:block">Show ID:</label>
@@ -109,7 +109,9 @@
                 </select>
                 <input id="smilAudioRef" style="display:none" type="text" placeholder="audio_ref"/>
                 <input id="smilPageRef" style="display:none" type="text" placeholder="page_ref"/>
-                <button class="btn btn-primary btn-sm" id="download" style="display:block;margin-top:5px;margin-bottom:5px;">Save</button>
+                <button class="btn btn-primary btn-sm" id="download"
+                        style="display:block;margin-top:5px;margin-bottom:5px;">Save
+                </button>
             </div>
         </div>
         <div class="col-sm">
@@ -353,14 +355,15 @@
 
             readBinaryStringFromBlob(audioFile, catchXingHeader);
             console.log(audioFile);
+
             function catchXingHeader(binary) {
-                console.log(binary.slice(0,1000));
+                console.log(binary.slice(0, 1000));
                 xingMatch = binary.match(/(Info|Xing)\x00\x00\x00/);
-                if(xingMatch){
-                    if(xingMatch[1]=='Xing'){
+                if (xingMatch) {
+                    if (xingMatch[1] == 'Xing') {
                         alert('Your audio file seems to have variable bitrate. You should convert it to constant bitrate (with iTunes etc), otherwise it\'s meaningless to use this tool.');
                     }
-                    if(xingMatch[1]=='Info' && navigator.userAgent.indexOf("Chrome")===-1){
+                    if (xingMatch[1] == 'Info' && navigator.userAgent.indexOf("Chrome") === -1) {
                         alert('We strongly recommend that you use Google Chrome (because you seem to have the imprecise \'Xing\' seek tables in your CBR encoded MP3 file which are used by browsers other than Chrome).');
                     }
                 }
@@ -395,12 +398,12 @@
             try {
                 fragments = JSON.parse(e.target.result).fragments;
             } catch (error) {
-		try {
-			fragments = parseCSV(e.target.result);
-		} catch (e2) {
-			alert("Unable to parse the given syncmap file.");
-			return;
-		}
+                try {
+                    fragments = parseCSV(e.target.result);
+                } catch (e2) {
+                    alert("Unable to parse the given syncmap file.");
+                    return;
+                }
             }
             roundTimeValues();
             prepareTable();
@@ -413,26 +416,26 @@
     }
 
     function parseCSV(contents) {
-	contents=contents.replace(/\n$/, "");
-	var lines = contents.split("\n");
-	fragments = [];
-	for (i=0; i<lines.length; i++){
-		// console.log(i);
-		lines[i] = lines[i].split(",");
+        contents = contents.replace(/\n$/, "");
+        var lines = contents.split("\n");
+        fragments = [];
+        for (i = 0; i < lines.length; i++) {
+            // console.log(i);
+            lines[i] = lines[i].split(",");
 
-		//get the text
-		var fragment=lines[i].slice(3);
-		fragment=fragment.join(",");
-		fragment=fragment.replace(/\r/g,"");
-		fragments[i] = {};
-		fragments[i].lines = [];
-		fragments[i].lines[0]=fragment.slice(1, -1);
-		fragments[i].id=lines[i][0];
-		fragments[i].begin=lines[i][1];
-		fragments[i].end=lines[i][2];
+            //get the text
+            var fragment = lines[i].slice(3);
+            fragment = fragment.join(",");
+            fragment = fragment.replace(/\r/g, "");
+            fragments[i] = {};
+            fragments[i].lines = [];
+            fragments[i].lines[0] = fragment.slice(1, -1);
+            fragments[i].id = lines[i][0];
+            fragments[i].begin = lines[i][1];
+            fragments[i].end = lines[i][2];
 
-	}
-	return fragments;
+        }
+        return fragments;
     }
 
     function prepareControls() {
@@ -635,11 +638,15 @@
             var begin = fragments[i].begin;
             var end = fragments[i].end;
             var row = "";
-            row += '<div class="row" style="padding-top:5px;padding-bottom:5px;border-bottom:1px solid #e2e3ed;margin-left:15px;margin-right:15px;">';
+            if(fragments[i].edited==="true"){
+                row += '<div id="main' + getStringID(i, "id") + '" class="row" style="background-color:#d9ffb3;padding-top:5px;padding-bottom:5px;border-bottom:1px solid #e2e3ed;margin-left:15px;margin-right:15px;">';
+            }else{
+                row += '<div id="main' + getStringID(i, "id") + '" class="row" style="padding-top:5px;padding-bottom:5px;border-bottom:1px solid #e2e3ed;margin-left:15px;margin-right:15px;">';
+            }
             if (showID) {
                 row += '<div class="col-2" id="' + getStringID(i, "id") + '">' + id + '<\/div>';
             }
-            row += '<div class="col" style="display: table-cell; vertical-align: middle;" id="' + getStringID(i, "cell") + '"><a class="text" id="' + getStringID(i, "text") + '"><textarea name="' + getStringID(i, "text") + '" id="' + getStringID(i, "text") + 'textarea" rows="3" style="width: 600px; margin-top: 0px; margin-bottom: 0px; height: 62px;">'+text+'</textarea><\/a><\/div>';
+            row += '<div class="col" style="display: table-cell; vertical-align: middle;" id="' + getStringID(i, "cell") + '"><a class="text" id="' + getStringID(i, "text") + '"><textarea name="' + getStringID(i, "text") + '" id="' + getStringID(i, "text") + 'textarea" rows="3" style="width: 600px; margin-top: 0px; margin-bottom: 0px; height: 62px;">' + text + '</textarea><\/a><\/div>';
             row += '<div class="edit col-4">';
 
             row += '<div style="display:block;margin-bottom:10px;">';
@@ -685,7 +692,8 @@
     function fragmentClick(evt) {
         highlight(CLEAR);
         currentIndex = getID(evt.target.id);
-        fragments[currentIndex].lines=[document.getElementById("f"+currentIndex+"textarea").value];
+        fragments[currentIndex].lines = [document.getElementById("f" + currentIndex + "textarea").value];
+        fragments[currentIndex].edited = "true";
         playOverlay(0);
     }
 
@@ -716,7 +724,7 @@
             if (couple && (i > 0)) {
                 if (!fragments[i - 1].ignore) {
                     fragments[i - 1].end = fragments[i].begin;
-                    updateTime(i-1, "end");
+                    updateTime(i - 1, "end");
                 }
             }
             highlight(CLEAR);
@@ -729,10 +737,10 @@
                 fragments[i].end = 0.00;
             }
             updateTime(i, "end");
-            if (couple && (i+1 < fragments.length)) {
-                if (!fragments[i+1].ignore) {
-                    fragments[i+1].begin = fragments[i].end;
-                    updateTime(i+1, "begin");
+            if (couple && (i + 1 < fragments.length)) {
+                if (!fragments[i + 1].ignore) {
+                    fragments[i + 1].begin = fragments[i].end;
+                    updateTime(i + 1, "begin");
                 }
             }
             highlight(CLEAR);
@@ -1016,19 +1024,18 @@
         }
         if (fragments[currentIndex]) {
             // display current time
-            var percentageCompleted = ((cTime.toFixed(3)-fragments[currentIndex].begin) / (fragments[currentIndex].end - fragments[currentIndex].begin)) * 100;
+            var percentageCompleted = ((cTime.toFixed(3) - fragments[currentIndex].begin) / (fragments[currentIndex].end - fragments[currentIndex].begin)) * 100;
             document.getElementById("audioticker").innerHTML = cTime.toFixed(3);
             document.getElementById("playerprogress").style.width = percentageCompleted.toString() + "%";
         }
     }
 
     function pausePlayOverlay() {
-		if(audioElement.paused) {
-			audioElement.play();
-		}
-		else {
-			stopOverlay();
-		}
+        if (audioElement.paused) {
+            audioElement.play();
+        } else {
+            stopOverlay();
+        }
     }
 
     function stopOverlay() {
@@ -1046,9 +1053,10 @@
             stopOverlay();
         }
     }
+
     function readBinaryStringFromBlob(blob, callback, ie, ie10) {
         var reader = new FileReader();
-        if(!ie) {
+        if (!ie) {
             reader.addEventListener("loadend", function () {
                 callback(reader.result);
             });
@@ -1057,8 +1065,7 @@
             } catch (err) {
                 readBinaryStringFromBlob(blob, callback, true);
             }
-        }
-        else if (!ie10){
+        } else if (!ie10) {
             try {
                 window.URL = window.URL || window.webkitURL;
                 var blobURL = URL.createObjectURL(blob);
@@ -1072,8 +1079,7 @@
             } catch (err) {
                 readBinaryStringFromBlob(blob, callback, true, true);
             }
-        }
-        else {
+        } else {
             reader.addEventListener("loadend", function () {
                 var binary = "";
                 var bytes = new Uint8Array(reader.result);
